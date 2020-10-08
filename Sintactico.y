@@ -31,12 +31,6 @@ FILE *yyin;
 %token LETRA
 %token BINARIO
 %token HEXA
-%token COMENTARIO_A 
-%token COMENTARIO_C
-%token IGNORA
-%token COMENTARIO
-%token COMENTARIO_P
-%token COMENTARIO_S
 %token REAL
 %token ENTERO
 %token CADENA
@@ -63,22 +57,23 @@ FILE *yyin;
 
 %%
 
-programa: sentencia {printf("   Compilacion Exitosa\n");} | programa sentencia ;
-sentencia: asignación | iteración | selección | print | scan | declaracion ;
-asignación: ID OP_ASIG expresión PUNTO_COMA ; 
-selección:  IF_T PARENTESIS_A condición PARENTESIS_C LLAVE_A programa LLAVE_C ELSE_T LLAVE_A programa LLAVE_C 
-         |  IF_T PARENTESIS_A condición PARENTESIS_C LLAVE_A programa LLAVE_C
-         |  IF_T PARENTESIS_A condición PARENTESIS_C asignación
-         |  IF_T PARENTESIS_A condición PARENTESIS_C print
-         |  IF_T PARENTESIS_A condición PARENTESIS_C scan
+start: programa {printf(" Compilacion Exitosa\n");};
+programa: sentencia  | programa sentencia ;
+sentencia: asignacion | iteracion | seleccion | print | scan | declaracion ;
+asignacion: ID OP_ASIG expresion PUNTO_COMA ; 
+seleccion:  IF_T PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C ELSE_T LLAVE_A programa LLAVE_C 
+         |  IF_T PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C
+         |  IF_T PARENTESIS_A condicion PARENTESIS_C asignacion
+         |  IF_T PARENTESIS_A condicion PARENTESIS_C print
+         |  IF_T PARENTESIS_A condicion PARENTESIS_C scan
          ;
          
-iteración:   WHILE_T  PARENTESIS_A condición PARENTESIS_C LLAVE_A programa LLAVE_C ;
-condición:   comparación | condición AND_T comparación | condición OR_T comparación ;
-comparación: expresión comparador expresión ;
+iteracion:   WHILE_T  PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C ;
+condicion:   comparacion | condicion AND_T comparacion | condicion OR_T comparacion ;
+comparacion: expresion comparador expresion ;
 comparador:   OP_MAYOR_IGUAL | OP_MENOR_IGUAL | OP_MENOR | OP_MAYOR | OP_IGUAL;
 
-expresión:  expresión OP_SUMA termino | expresión OP_RESTA termino | termino;
+expresion:  expresion OP_SUMA termino | expresion OP_RESTA termino | termino;
 
 termino:
         factor {printf("   Factor es Termino\n");}
@@ -91,7 +86,7 @@ factor:
     |REAL {printf("  REAL es Factor\n");}
     |BINARIO {printf("  BINARIO es Factor\n");}
     |HEXA {printf("  HEXA es Factor\n");}
-    |(expresion) {printf("  Expresion entre parentesis es Factor\n");}
+    | PARENTESIS_A expresion PARENTESIS_C {printf("  Expresion entre parentesis es Factor\n");}
     | contar
     ;
 
