@@ -42,9 +42,12 @@ HEXA		0[xX][0-9A-Fa-f]+
 
 COMENTARIO_A       \*\-
 COMENTARIO_C       \-\*
-IGNORA		    [ \t\n\r]
-COMENTARIO      ({LETRA}|{DIGITO}|{IGNORA})*
-COMENTARIO_COMPLETO  {COMENTARIO_A}{COMENTARIO}{COMENTARIO_C}
+COMENTARIO      [^\*\-\n\r]*
+
+COMENTARIO_CERO  {COMENTARIO_A}{COMENTARIO}{COMENTARIO_C}
+COMENTARIO_UNO {COMENTARIO_A}({COMENTARIO}*{COMENTARIO_CERO})*{COMENTARIO}({COMENTARIO_CERO})*{COMENTARIO}({COMENTARIO_CERO})*{COMENTARIO}*{COMENTARIO_C}
+COMENTARIO_DOS {COMENTARIO_A}{COMENTARIO}*{COMENTARIO_NU}{COMENTARIO}*{COMENTARIO_C}
+
 REAL     	({DIGITO}*"."{DIGITO}+)|({DIGITO}+"."{DIGITO}*)
 ENTERO      {DIGITO}+
 CADENA      \"(\\.|[^\"])*\"
@@ -94,7 +97,7 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 {ID}			{ printf("ID: %s\n", yytext);return ID;}
 {ENTERO}	    { printf("ENTERO: %s\n", yytext);return ENTERO;}
 {REAL}          { printf("REAL: %s\n", yytext);return REAL;}
-{CADENA}        { if (strlen(CADENA) > MaxCadena)
+{CADENA}        { if (strlen(yytext) > MaxCadena)
                     {    show_error("Variable excede el maximo");
                     }
                  printf("CADENA: %s\n", yytext);return CADENA;}
@@ -102,8 +105,9 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 {HEXA}			{ printf("HEXA: %s\n", yytext);return HEXA;}
 
 
-{IGNORA}
-{COMENTARIO_COMPLETO} 
+{COMENTARIO_CERO} {}
+{COMENTARIO_UNO} {}
+{COMENTARIO_DOS} { yyerror(); }
 . {}              
 %%
 

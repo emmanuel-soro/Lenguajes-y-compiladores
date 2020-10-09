@@ -58,6 +58,7 @@ FILE *yyin;
 %%
 
 start: programa {printf(" Compilacion Exitosa\n");};
+
 programa: sentencia  | programa sentencia ;
 sentencia: asignacion | iteracion | seleccion | print | scan | declaracion ;
 asignacion: ID OP_ASIG expresion PUNTO_COMA ; 
