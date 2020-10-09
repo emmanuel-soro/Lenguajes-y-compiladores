@@ -5,12 +5,10 @@
 #include <conio.h>
 #include <float.h>
 #include "y.tab.h"
-#define MaxCadena 32
-#define MaxID 32
-#define MaxEntero 32767
+#define MAX_CADENA 50
+
+
 FILE  *yyin;
-int yylval;
-char *yytext;
 
 
 int show_error(char*);
@@ -20,9 +18,9 @@ int show_error(char*);
 %option yylineno 
 
 
-ELSE_T		"else"|"ELSE"
-IF_T		"IF"|"if"
-WHILE_T		"WHILE"|"while"
+ELSE_T		"else"|"ELSE"|"Else"
+IF_T		"IF"|"if"|"If"
+WHILE_T		"WHILE"|"while"|"While"
 INTEGER_T	"INTEGER"|"integer"|"Integer"
 FLOAT_T		"Float"|"float"|"FLOAT"
 PUT_T		"PUT"|"put"|"Put"
@@ -46,7 +44,7 @@ COMENTARIO      [^\*\-\n\r]*
 
 COMENTARIO_CERO  {COMENTARIO_A}{COMENTARIO}{COMENTARIO_C}
 COMENTARIO_UNO {COMENTARIO_A}({COMENTARIO}*{COMENTARIO_CERO})*{COMENTARIO}({COMENTARIO_CERO})*{COMENTARIO}({COMENTARIO_CERO})*{COMENTARIO}*{COMENTARIO_C}
-COMENTARIO_DOS {COMENTARIO_A}{COMENTARIO}*{COMENTARIO_NU}{COMENTARIO}*{COMENTARIO_C}
+COMENTARIO_DOS {COMENTARIO_A}{COMENTARIO}*{COMENTARIO_UNO}{COMENTARIO}*{COMENTARIO_C}
 
 REAL     	({DIGITO}*"."{DIGITO}+)|({DIGITO}+"."{DIGITO}*)
 ENTERO      {DIGITO}+
@@ -95,12 +93,26 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 
 
 {ID}			{ printf("ID: %s\n", yytext);return ID;}
-{ENTERO}	    { printf("ENTERO: %s\n", yytext);return ENTERO;}
-{REAL}          { printf("REAL: %s\n", yytext);return REAL;}
-{CADENA}        { if (strlen(yytext) > MaxCadena)
-                    {    show_error("Variable excede el maximo");
-                    }
-                 printf("CADENA: %s\n", yytext);return CADENA;}
+{ENTERO}	{ 
+            if(atoi( yytext ) <= 32767 /*&& atoi( yytext ) >= -32768*/){
+                yylval.int_val = atoi(yytext);
+                printf("ENTERO: %s\n", yytext);return ENTERO;}
+              show_error("ERROR LEXICO. ENTERO FUERA DE RANGO\n");
+            }
+
+{REAL}    {
+            if(atof( yytext ) < FLT_MAX && atof( yytext ) > FLT_MIN ){
+              yylval.real_val = atof(yytext);
+              printf("REAL: %s\n", yytext);return REAL;}
+              show_error("ERROR LEXICO. REAL FUERA DE RANGO\n");
+          }
+
+{CADENA}        { if(yyleng <= MAX_CADENA ){ 
+                        yylval.str_val = strdup(yytext);
+                      printf("CADENA: %s\n", yytext);return CADENA;
+                                 } 
+                   /* show_error("ERROR LEXICO. CADENA MAYOR a 32 caracteres\n");*/
+                }
 {BINARIO}		{ printf("BINARIO: %s\n", yytext);return BINARIO;}
 {HEXA}			{ printf("HEXA: %s\n", yytext);return HEXA;}
 
