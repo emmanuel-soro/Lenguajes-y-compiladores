@@ -51,22 +51,35 @@ char * ultima_expresion;
 
 
 int crear_lista_variable(char * variable){
+ printf("Entra crear lista variables%s.\n", variable);
+
   *(array_nombres_variables+index_array) = variable;
+  
+  printf("Sizeof variable:%d\n",sizeof(array_nombres_variables));
+
+
   if(sizeof(array_nombres_variables) <= index_array){
+    printf("Antes de realloc\n");
     char** tmp = realloc(array_nombres_variables, array_size * 2 * sizeof(*tmp));
+    printf("Despues de realloc\n");
     if(tmp){
       array_nombres_variables = tmp;
       array_size *= 2;
+      printf("PASO2\n");
       return SUCCESS;
     }
     else{
+       printf("NOT SUCCESS.\n");
       return NOT_SUCCESS;
     }
   }
+   printf("Index array: %d\n", index_array);
   index_array++;
 }
 
 void guardar_variables_ts(){
+ printf("Entra guardar variables.\n");
+
   int i = 0;
   for(i; i<index_array; i++){
     if(cant_elem_ts<=TAM_TABLA && !existe_simbolo(array_nombres_variables[i])){

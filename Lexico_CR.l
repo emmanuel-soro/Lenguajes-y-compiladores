@@ -91,8 +91,15 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 {NOT_T}         { return NOT_T;}
 
 
+{ID}			{ printf("ID: %s\n", yytext);
 
-{ID}			{ printf("ID: %s\n", yytext);return ID;}
+            if(yyleng <= 30){ 
+                        yylval.str_val = strdup(yytext);
+                        return ID;
+                    }
+                    show_error("ERROR LEXICO. NOMBRE DE VARIABLE MAYOR a 30 caracteres\n");
+
+          }
 {ENTERO}	{ 
             if(atoi( yytext ) <= 32767 /*&& atoi( yytext ) >= -32768*/){
                 yylval.int_val = atoi(yytext);

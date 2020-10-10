@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include "y.tab.h"
+#include "funciones.c"
 
 
 int yystopparser=0;
@@ -23,13 +24,13 @@ FILE *yyin;
 %token ELSE_T	
 %token IF_T
 %token WHILE_T
-%token INTEGER_T
-%token FLOAT_T
+%token <str_val> INTEGER_T
+%token <str_val> FLOAT_T
 %token PUT_T
 %token GET_T
 %token DIM_T
 %token AS_T
-%token STRING_T
+%token <str_val> STRING_T
 %token AND_T
 %token OR_T
 %token NOT_T
@@ -38,10 +39,10 @@ FILE *yyin;
 %token LETRA
 %token BINARIO
 %token HEXA
-%token REAL
-%token ENTERO
-%token CADENA
-%token ID	
+%token <real_val> REAL
+%token <int_val> ENTERO
+%token <str_val> CADENA
+%token <str_val> ID	
 %token COMA
 %token PUNTO_COMA 
 %token CORCHETE_A   	
@@ -64,7 +65,10 @@ FILE *yyin;
 
 %%
 
-start: programa {printf(" Compilacion Exitosa\n");};
+start: programa {printf(" Compilacion Exitosa\n");
+                guardar_variables_ts();
+                }
+;
 
 programa: sentencia  | programa sentencia ;
 sentencia: asignacion | iteracion | seleccion | print | scan | declaracion ;
@@ -120,15 +124,87 @@ factor:
 
 print: PUT_T ID PUNTO_COMA | PUT_T CADENA PUNTO_COMA ;
 scan:  GET_T ID PUNTO_COMA ;
-lista_variable: ID | lista_variable COMA ID ;
-tipo_variable: INTEGER_T | FLOAT_T | STRING_T ; 
-lista_tipo:  tipo_variable | lista_tipo COMA tipo_variable ;
+
+lista_variable: ID 
+            {
+                crear_lista_variable($<str_val>1);
+                printf("Paso lista variable ID, strval:%s\n",$1);
+            }
+            | lista_variable COMA ID 
+            {   
+                printf("Paso lista variable lista_variable COMA ID \n");
+              if(crear_lista_variable($<str_val>3)==NOT_SUCCESS){
+                printf("NO HAY MAS MEMORIA \n");
+                yyerror();
+                }
+            }
+            ;
+
+tipo_variable: INTEGER_T 
+                {
+                printf("Paso tipo variable INTEGER\n");
+            }
+| FLOAT_T
+       {
+                printf("Paso tipo variable FLOAT\n");
+            } | STRING_T
+                   {
+                printf("Paso tipo variable STRING\n");
+            } ; 
+lista_tipo:  tipo_variable 
+
+       {
+                printf("Paso lista tipo tipo variable\n");
+            }
+
+
+| lista_tipo COMA tipo_variable
+       {
+                printf("Paso lista tipo lista tipo COMA tipo_variable\n");
+            }
+
+
+ ;
 tipo_numerico: ENTERO | REAL | HEXA | BINARIO ;
 lista_numerica:  tipo_numerico | lista_numerica COMA tipo_numerico;
-declaracion: DIM_T CORCHETE_A lista_variable CORCHETE_C AS_T CORCHETE_A lista_tipo CORCHETE_C ;
+declaracion: DIM_T CORCHETE_A lista_variable CORCHETE_C AS_T CORCHETE_A lista_tipo CORCHETE_C 
+{printf("Paso declaracion\n");}
+;
 contar: CONTAR_T PARENTESIS_A expresion PUNTO_COMA CORCHETE_A lista_numerica CORCHETE_C PARENTESIS_C ;
 %%
 
+int main(int argc,char *argv[])
+{
+  if ((yyin = fopen(argv[1], "rt")) == NULL){
+	  printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
+  }
+  else{
+    crearTabla();
+    {printf("Paso Crear Tabla\n");}
+    array_nombres_variables = malloc(sizeof(char*)* INITIAL_CAPACITY);
+    {printf("Paso Array nombres\n");}
+    array_size = INITIAL_CAPACITY;
+     {printf("Paso Array Size\n");}
+    free(array_nombres_variables);
+     {printf("Paso Array nombre variables\n");}
+    yyparse();
+     {printf("Paso yyparse\n");}
+    guardar_ts();
+
+  }
+  fclose(yyin);
+  return 0;
+}
+
+int yyerror(void)
+{
+   printf("Error Sintactico, Linea Num %d \n", yylineno); 
+   exit(1); 
+}
+
+
+
+/*
 int main (int argc, char *argv[])
 {
     if ((yyin = fopen(argv[1], "rt")) == NULL)
@@ -142,10 +218,5 @@ int main (int argc, char *argv[])
     fclose(yyin);
         return 0;
 }
-
-int yyerror(void)
-{
-   printf("Error Sintactico, Linea Num %d \n", yylineno); 
-   exit(1); 
-}
+*/
 
