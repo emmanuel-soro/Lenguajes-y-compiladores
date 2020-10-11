@@ -15,7 +15,7 @@ FILE *yyin;
     int yylineno;
 
     t_lista pl;
-    t_lista actual;
+    int cont = 0;
 %}
 
 %union {
@@ -114,26 +114,56 @@ termino:
     |termino OP_DIV factor {printf("   Termino/Factor es Termino\n");}
     ;
 factor:
-        ID {printf("    ID es Factor\n");}
-    |ENTERO {printf("  ENTERO es Factor\n");}
-    |REAL {printf("  REAL es Factor\n");}
-    |BINARIO {printf("  BINARIO es Factor\n");}
-    |HEXA {printf("  HEXA es Factor\n");}
+    ID 
+      {
+        printf("    ID es Factor\n");
+      }
+    |ENTERO 
+      {
+        printf("  ENTERO es Factor\n");
+        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
+          printf("No hay memoria, no se puede agregar el factor");
+          yyerror();
+        }
+      }
+    |REAL 
+      {
+        printf("  REAL es Factor\n");
+        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
+          printf("No hay memoria, no se puede agregar el factor");
+          yyerror();
+        }
+      }
+    |BINARIO 
+      {
+        printf("  BINARIO es Factor\n");
+        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
+          printf("No hay memoria, no se puede agregar el factor");
+          yyerror();
+        }
+      }
+    |HEXA 
+      {
+        printf("  HEXA es Factor\n");
+        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
+          printf("No hay memoria, no se puede agregar el factor");
+          yyerror();
+        }
+      }
     | PARENTESIS_A expresion PARENTESIS_C {printf("  Expresion entre parentesis es Factor\n");}
-    | contar {printf("  Contar es Factor\n");}
+    | CONTAR_T {printf("  Contar es Factor\n");}
     ;
 
-print: PUT_T ID PUNTO_COMA 
-            | PUT_T CADENA PUNTO_COMA 
-              {  
-
-                if(insertar_en_lista($2, ES_STRING, &pl) == FALLO){
-                  printf("No hay memoria, no se puede agregar la cadena a la lista de variables. \n");
-                  yyerror();
-                }
-              }
-            ;
-scan:  GET_T ID PUNTO_COMA ;
+print: PUT_T ID PUNTO_COMA | PUT_T CADENA PUNTO_COMA ;
+scan:  GET_T ID PUNTO_COMA
+    {
+      if(existe_simbolo($2) == FALLO){
+        printf("No se declaro la Variable - %s - en la seccion de Definiciones. \n",$2);
+        yyerror();
+      }
+      printf("GET %s. \n",$2);
+    } 
+    ;
 
 lista_variable: ID 
               {
@@ -141,7 +171,6 @@ lista_variable: ID
                   printf("No hay memoria, no se puede agregar la variable. \n");
                   yyerror();
                 }
-                actual=pl;
               }
             | lista_variable COMA ID 
               {   
@@ -154,21 +183,23 @@ lista_variable: ID
 
 tipo_variable: INTEGER_T 
               {
-                if(modificar_lista(&actual, INTEGER)==FALLO)
+                if(modificar_lista(&pl, INTEGER,cont)==FALLO)
                   printf("Error. No se pudo actualizar\n");
-               
+                cont++;
                 printf("Paso tipo variable INTEGER\n");
               }
             |FLOAT_T
               {
-                 if(modificar_lista(&actual, FLOAT)==FALLO)
+                if(modificar_lista(&pl, FLOAT, cont)==FALLO)
                   printf("Error. No se pudo actualizar\n");
+                cont++;
                 printf("Paso tipo variable FLOAT\n");
               } 
             | STRING_T
               {
-                if(modificar_lista(&actual, STRING)==FALLO)
+                if(modificar_lista(&pl, STRING, cont)==FALLO)
                    printf("Error. No se pudo actualizar\n");
+                   cont++;
                 printf("Paso tipo variable STRING\n");
               }
             ; 

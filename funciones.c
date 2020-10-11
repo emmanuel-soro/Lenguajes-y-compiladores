@@ -31,14 +31,19 @@ int vaciar_lista(t_lista* lista);
 
 void crear_lista(t_lista* lista);
 
+void crear_puntero(t_lista* lista, t_lista* actual);
+
 void eliminar_comilla (char* cadena);
 
-int modificar_lista(t_lista* actual, int tipo);
+int modificar_lista(t_lista* lista, int tipo, int cont);
 
 ////////////////////////////////////////////////////////////////
 
 void crear_lista(t_lista* lista){
 	*lista = NULL;
+}
+void crear_puntero(t_lista* lista, t_lista* actual){
+	*actual = *lista;
 }
 
 int insertar_en_lista(char* nombre_var , int valor , t_lista* lista_simbolos){
@@ -80,13 +85,18 @@ int insertar_en_lista(char* nombre_var , int valor , t_lista* lista_simbolos){
 			strcpy(nuevo->valor, nombre_var);
 			nuevo->tipo = NULL;
 		}else{
-			nuevo->tipo = NULL;
+			nuevo->tipo = (char*) malloc(sizeof(char) * 10);
+			if(nuevo->tipo == NULL ){
+				printf("Error, no hay memoria suficiente\n");
+				return FALLO;
+			}
 			nuevo->valor = NULL;
 		}
 	}
 	if(!*lista_simbolos){
 		nuevo->siguiente = NULL;
 		*lista_simbolos = nuevo;
+		printf("%d\n", *lista_simbolos);
 	}
 	while((*laux)->siguiente){
 		laux = &(*laux)->siguiente;
@@ -128,22 +138,24 @@ void eliminar_comilla (char* cadena){
 	*caracter_sig = '\0';
 }
 
-int modificar_lista(t_lista* actual, int tipo)
-{	
-
+int modificar_lista(t_lista* lista, int tipo, int cont){
+	t_lista* aux = lista;
+	for(int i = 0; i < cont; i++){
+		aux = &(*aux)->siguiente;
+	}
 	if(tipo == INTEGER){
-		printf("PEPEEE\n");
-	(*actual)->tipo="Int";}
-	else if(tipo == FLOAT)
-	(*actual)->tipo = "Float";
-	else if(tipo == STRING )
-	(*actual)->tipo = "String";
+		strcpy((*aux)->tipo,"Int");
+	}else if(tipo == FLOAT){
+		strcpy((*aux)->tipo,"Float");
+	}
+	else if(tipo == STRING ){
+		strcpy((*aux)->tipo,"String");
+	}
 	else
 	{
 		return FALLO;
 	}
-	
-	actual = &(*actual)->siguiente;
+	free(aux);
 	return TODO_OK;
 
 }
