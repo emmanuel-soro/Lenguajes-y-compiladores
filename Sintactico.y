@@ -13,6 +13,9 @@ FILE *yyin;
     int yylex();
     char* yytext;
     int yylineno;
+
+    t_lista pl;
+    t_lista actual;
 %}
 
 %union {
@@ -65,10 +68,8 @@ FILE *yyin;
 
 %%
 
-start: programa {printf(" Compilacion Exitosa\n");
-                guardar_variables_ts();
-                }
-;
+start: programa {printf(" Compilacion Exitosa\n");}
+      ;
 
 programa: sentencia  | programa sentencia ;
 sentencia: asignacion | iteracion | seleccion | print | scan | declaracion ;
@@ -122,55 +123,74 @@ factor:
     | contar {printf("  Contar es Factor\n");}
     ;
 
-print: PUT_T ID PUNTO_COMA | PUT_T CADENA PUNTO_COMA ;
+print: PUT_T ID PUNTO_COMA 
+            | PUT_T CADENA PUNTO_COMA 
+              {  
+
+                if(insertar_en_lista($2, ES_STRING, &pl) == FALLO){
+                  printf("No hay memoria, no se puede agregar la cadena a la lista de variables. \n");
+                  yyerror();
+                }
+              }
+            ;
 scan:  GET_T ID PUNTO_COMA ;
 
 lista_variable: ID 
-            {
-                crear_lista_variable($<str_val>1);
-                printf("Paso lista variable ID, strval:%s\n",$1);
-            }
-            | lista_variable COMA ID 
-            {   
-                printf("Paso lista variable lista_variable COMA ID \n");
-              if(crear_lista_variable($<str_val>3)==NOT_SUCCESS){
-                printf("NO HAY MAS MEMORIA \n");
-                yyerror();
+              {
+                if(insertar_en_lista($1, SIN_VALOR, &pl) == FALLO){
+                  printf("No hay memoria, no se puede agregar la variable. \n");
+                  yyerror();
                 }
-            }
+                actual=pl;
+              }
+            | lista_variable COMA ID 
+              {   
+                if(insertar_en_lista($3, SIN_VALOR, &pl) == FALLO){
+                  printf("NO HAY MAS MEMORIA \n");
+                  yyerror();
+                }
+              }
             ;
 
 tipo_variable: INTEGER_T 
-                {
+              {
+                if(modificar_lista(&actual, INTEGER)==FALLO)
+                  printf("Error. No se pudo actualizar\n");
+               
                 printf("Paso tipo variable INTEGER\n");
-            }
-| FLOAT_T
-       {
+              }
+            |FLOAT_T
+              {
+                 if(modificar_lista(&actual, FLOAT)==FALLO)
+                  printf("Error. No se pudo actualizar\n");
                 printf("Paso tipo variable FLOAT\n");
-            } | STRING_T
-                   {
+              } 
+            | STRING_T
+              {
+                if(modificar_lista(&actual, STRING)==FALLO)
+                   printf("Error. No se pudo actualizar\n");
                 printf("Paso tipo variable STRING\n");
-            } ; 
+              }
+            ; 
 lista_tipo:  tipo_variable 
-
-       {
+              {
                 printf("Paso lista tipo tipo variable\n");
-            }
-
-
-| lista_tipo COMA tipo_variable
-       {
+              }
+            ;
+            | lista_tipo COMA tipo_variable
+              {
                 printf("Paso lista tipo lista tipo COMA tipo_variable\n");
-            }
-
-
- ;
+              }
+            ;
 tipo_numerico: ENTERO | REAL | HEXA | BINARIO ;
 lista_numerica:  tipo_numerico | lista_numerica COMA tipo_numerico;
 declaracion: DIM_T CORCHETE_A lista_variable CORCHETE_C AS_T CORCHETE_A lista_tipo CORCHETE_C 
-{printf("Paso declaracion\n");}
-;
+            {
+              printf("Paso declaracion\n");
+            }
+            ;
 contar: CONTAR_T PARENTESIS_A expresion PUNTO_COMA CORCHETE_A lista_numerica CORCHETE_C PARENTESIS_C ;
+
 %%
 
 int main(int argc,char *argv[])
@@ -179,17 +199,9 @@ int main(int argc,char *argv[])
 	  printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
   }
   else{
-    crearTabla();
-    {printf("Paso Crear Tabla\n");}
-    array_nombres_variables = malloc(sizeof(char*)* INITIAL_CAPACITY);
-    {printf("Paso Array nombres\n");}
-    array_size = INITIAL_CAPACITY;
-     {printf("Paso Array Size\n");}
-    free(array_nombres_variables);
-     {printf("Paso Array nombre variables\n");}
+    crear_lista(&pl);
     yyparse();
-     {printf("Paso yyparse\n");}
-    guardar_ts();
+    vaciar_lista(&pl);
 
   }
   fclose(yyin);

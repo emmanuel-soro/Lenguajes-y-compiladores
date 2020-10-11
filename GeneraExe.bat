@@ -4,7 +4,7 @@ c:\GnuWin32\bin\bison -dyv Sintactico.y
 
 c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o Compilador.exe
 
-Compilador.exe Prueba2.txt
+Compilador.exe Prueba.txt
 del lex.yy.c
 del y.tab.c
 del y.output

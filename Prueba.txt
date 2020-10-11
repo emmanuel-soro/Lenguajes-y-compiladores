@@ -1,4 +1,4 @@
-DIM [ contador,promedio,actual,suma ] AS [ Integer,Float,Float,Float ]
+DIM [ contador,promedio,actual] AS [ Integer,Float,String ]
 PUT "Prueba.txt LyC Tema 1!";
 PUT "Ingrese un valor entero para actual: ";
 GET actual;
@@ -19,4 +19,3 @@ Else
 if (actual < 0b111010)
 PUT "no es mayor que 2";
 }
-*- Asi son los comentarios en el 2°Cuat de LyC *- Comentario -* LALALA -*
