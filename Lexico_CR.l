@@ -120,8 +120,14 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
                                  } 
                    /* show_error("ERROR LEXICO. CADENA MAYOR a 32 caracteres\n");*/
                 }
-{BINARIO}		{ printf("BINARIO: %s\n", yytext);return BINARIO;}
-{HEXA}			{ printf("HEXA: %s\n", yytext);return HEXA;}
+{BINARIO}		{ printf("BINARIO: %s\n", yytext);
+              yylval.str_val = strdup(yytext);
+              return BINARIO;
+            }
+{HEXA}			{ printf("HEXA: %s\n", yytext);
+              yylval.str_val = strdup(yytext);
+              return HEXA;
+            }
 
 
 {COMENTARIO_CERO} {}

@@ -1,3 +1,2 @@
-DIM [ contador,promedio,actual] AS [ Integer,Float,String ]
-PUT "Prueba.txt LyC Tema 1!";
-actual:=30.5;
+DIM [ contador,promedio,suma] AS [ Integer,Float,Float ]
+suma:= 7.6;

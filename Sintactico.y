@@ -40,8 +40,8 @@ FILE *yyin;
 %token CONTAR_T
 %token DIGITO
 %token LETRA
-%token BINARIO
-%token HEXA
+%token <str_val> BINARIO
+%token <str_val> HEXA
 %token <real_val> REAL
 %token <int_val> ENTERO
 %token <str_val> CADENA
@@ -117,47 +117,61 @@ factor:
     ID 
       {
         printf("    ID es Factor\n");
+        if(existe_simbolo($1, &pl) == FALLO){
+        printf("No se declaro la Variable - %s - en la seccion de Definiciones. \n",$1);
+        yyerror();
+        }
       }
     |ENTERO 
       {
         printf("  ENTERO es Factor\n");
-        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
-          printf("No hay memoria, no se puede agregar el factor");
+
+        if(insertar_entero($1, &pl) == FALLO){
+          printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
         }
       }
     |REAL 
       {
         printf("  REAL es Factor\n");
-        if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
-          printf("No hay memoria, no se puede agregar el factor");
+         if(insertar_real($1, &pl) == FALLO){
+          printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
         }
+        
       }
     |BINARIO 
       {
         printf("  BINARIO es Factor\n");
         if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
-          printf("No hay memoria, no se puede agregar el factor");
+          printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
-        }
+        }   
       }
     |HEXA 
       {
         printf("  HEXA es Factor\n");
         if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
-          printf("No hay memoria, no se puede agregar el factor");
+          printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
         }
       }
     | PARENTESIS_A expresion PARENTESIS_C {printf("  Expresion entre parentesis es Factor\n");}
     | CONTAR_T {printf("  Contar es Factor\n");}
+    | CADENA 
+      {
+        printf("  CADENA es Factor\n");
+        if(insertar_en_lista($1, ES_STRING, &pl) == FALLO){
+          printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
+          yyerror();
+        }   
+      }
     ;
 
 print: PUT_T ID PUNTO_COMA | PUT_T CADENA PUNTO_COMA ;
 scan:  GET_T ID PUNTO_COMA
     {
-      if(existe_simbolo($2) == FALLO){
+      if(existe_simbolo($2, &pl) == FALLO){
         printf("No se declaro la Variable - %s - en la seccion de Definiciones. \n",$2);
         yyerror();
       }
