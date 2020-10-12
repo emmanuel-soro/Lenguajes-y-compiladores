@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include "y.tab.h"
-#include "funciones.c"
+#include "Funciones.c"
 
 
 int yystopparser=0;
@@ -29,11 +29,13 @@ FILE *yyin;
 %token WHILE_T
 %token <str_val> INTEGER_T
 %token <str_val> FLOAT_T
+%token <str_val> STRING_T
+%token <str_val> HEXADECIMAL_T
+%token <str_val> BINARIO_T
 %token PUT_T
 %token GET_T
 %token DIM_T
 %token AS_T
-%token <str_val> STRING_T
 %token AND_T
 %token OR_T
 %token NOT_T
@@ -68,55 +70,61 @@ FILE *yyin;
 
 %%
 
-start: programa {printf(" Compilacion Exitosa\n");}
+start: programa {printf("COMPILACION EXITOSA\n");}
       ;
 
 programa: sentencia  | programa sentencia ;
 sentencia: asignacion | iteracion | seleccion | print | scan | declaracion ;
-asignacion: ID OP_ASIG expresion PUNTO_COMA ; 
+asignacion: ID OP_ASIG expresion PUNTO_COMA {printf("  Asignacion\n");} ; 
 seleccion:  IF_T PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C ELSE_T LLAVE_A programa LLAVE_C  
-            {printf(" Seleccion es if ( Condicion) { Programa } else { programa} \n");}
+            {printf("  Seleccion es if ( Condicion) { Programa } else { programa} \n");}
          |  IF_T PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C
-             {printf(" Seleccion es if ( Condicion) { Programa } \n");}
+             {printf("  Seleccion es if ( Condicion) { Programa } \n");}
          |  IF_T PARENTESIS_A condicion PARENTESIS_C asignacion
-             {printf(" Seleccion es if ( Condicion) Asignacion \n");}
+             {printf("  Seleccion es if ( Condicion) Asignacion \n");}
          |  IF_T PARENTESIS_A condicion PARENTESIS_C print
-             {printf(" Seleccion es if ( Condicion) print \n");}
+             {printf("  Seleccion es if ( Condicion) print \n");}
          |  IF_T PARENTESIS_A condicion PARENTESIS_C scan
-             {printf(" Seleccion es if ( Condicion) scan \n");}
+             {printf("  Seleccion es if ( Condicion) scan \n");}
          ;
          
 iteracion:   WHILE_T  PARENTESIS_A condicion PARENTESIS_C LLAVE_A programa LLAVE_C 
         {printf(" Iteracion es WHILE ( Condicion ) { Programa}\n");}
+        |   WHILE_T  PARENTESIS_A condicion PARENTESIS_C  asignacion  
+        {printf(" Iteracion es WHILE ( Condicion )  Asignacion\n");}
+        |   WHILE_T  PARENTESIS_A condicion PARENTESIS_C  print  
+        {printf(" Iteracion es WHILE ( Condicion )  Print\n");}
+        |   WHILE_T  PARENTESIS_A condicion PARENTESIS_C  scan  
+        {printf(" Iteracion es WHILE ( Condicion )  Scan\n");}
         ;
-condicion:   comparacion {printf(" Condicion es Comparacion\n");} 
-        | condicion AND_T comparacion {printf(" Condicion es Condicion AND Comparacion\n");}
-        | condicion OR_T comparacion {printf(" Condicion es Condicion OR Comparacion\n");} 
-        | NOT_T comparacion {printf(" Condicion NOT Comparacion \n");}
+condicion:   comparacion {printf("  Condicion es Comparacion\n");} 
+        | condicion AND_T comparacion {printf("  Condicion es Condicion AND Comparacion\n");}
+        | condicion OR_T comparacion {printf("   Condicion es Condicion OR Comparacion\n");} 
+        | NOT_T comparacion {printf("  Condicion NOT Comparacion \n");}
         ;
-comparacion: expresion comparador expresion {printf(" Comparacion es Expresion Comparador Expresion\n");} 
+comparacion: expresion comparador expresion {printf("  Comparacion es Expresion Comparador Expresion\n");} 
             ;
-comparador:   OP_MAYOR_IGUAL {printf(" Comparador es >=\n");} 
-        | OP_MENOR_IGUAL {printf(" Comparador es <=\n");}  
-        | OP_MENOR {printf(" Comparador es <\n");}
-        | OP_MAYOR {printf(" Comparador es >\n");}
-        | OP_IGUAL {printf(" Comparador es =\n");}
-        | OP_DISTINTO {printf(" Comparador es <>\n");} 
+comparador:   OP_MAYOR_IGUAL {printf("  Comparador es >=\n");} 
+        | OP_MENOR_IGUAL {printf("  Comparador es <=\n");}  
+        | OP_MENOR {printf("  Comparador es <\n");}
+        | OP_MAYOR {printf("  Comparador es >\n");}
+        | OP_IGUAL {printf("  Comparador es =\n");}
+        | OP_DISTINTO {printf("  Comparador es <>\n");} 
         ;
 
-expresion:  expresion OP_SUMA termino {printf("   Expresion + Termino\n");} 
-        | expresion OP_RESTA termino {printf("   Expresion - Termino\n");} 
-        | termino {printf("   Expresion es Termino\n");};
+expresion:  expresion OP_SUMA termino {printf("  Expresion + Termino\n");} 
+        | expresion OP_RESTA termino {printf("  Expresion - Termino\n");} 
+        | termino {printf("  Expresion es Termino\n");};
 
 termino:
-        factor {printf("   Factor es Termino\n");}
-    |termino OP_MUL factor {printf("   Termino*Factor es Termino\n");}
-    |termino OP_DIV factor {printf("   Termino/Factor es Termino\n");}
+        factor {printf("  Factor es Termino\n");}
+    |termino OP_MUL factor {printf("  Termino * Factor es Termino\n");}
+    |termino OP_DIV factor {printf("  Termino / Factor es Termino\n");}
     ;
 factor:
     ID 
       {
-        printf("    ID es Factor\n");
+        printf("  ID es Factor\n");
         if(existe_simbolo($1, &pl) == FALLO){
         printf("No se declaro la Variable - %s - en la seccion de Definiciones. \n",$1);
         yyerror();
@@ -146,7 +154,7 @@ factor:
         if(insertar_en_lista($1, CON_VALOR, &pl) == FALLO){
           printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
-        }   
+        }  
       }
     |HEXA 
       {
@@ -157,14 +165,14 @@ factor:
         }
       }
     | PARENTESIS_A expresion PARENTESIS_C {printf("  Expresion entre parentesis es Factor\n");}
-    | CONTAR_T {printf("  Contar es Factor\n");}
+    | contar {printf("  Contar es Factor\n");}
     | CADENA 
       {
         printf("  CADENA es Factor\n");
         if(insertar_en_lista($1, ES_STRING, &pl) == FALLO){
           printf("No hay memoria suficiente, no se pudo guardar la conste. \n");
           yyerror();
-        }   
+        }  
       }
     ;
 
@@ -181,10 +189,11 @@ scan:  GET_T ID PUNTO_COMA
 
 lista_variable: ID 
               {
-                if(insertar_en_lista($1, SIN_VALOR, &pl) == FALLO){
+                 if(insertar_en_lista($1, SIN_VALOR, &pl) == FALLO){
                   printf("No hay memoria, no se puede agregar la variable. \n");
                   yyerror();
                 }
+                printf("  ID es una variable\n");
               }
             | lista_variable COMA ID 
               {   
@@ -192,6 +201,7 @@ lista_variable: ID
                   printf("NO HAY MAS MEMORIA \n");
                   yyerror();
                 }
+                printf("  Lista,ID es una variable\n");
               }
             ;
 
@@ -200,41 +210,42 @@ tipo_variable: INTEGER_T
                 if(modificar_lista(&pl, INTEGER,cont)==FALLO)
                   printf("Error. No se pudo actualizar\n");
                 cont++;
-                printf("Paso tipo variable INTEGER\n");
               }
             |FLOAT_T
               {
                 if(modificar_lista(&pl, FLOAT, cont)==FALLO)
                   printf("Error. No se pudo actualizar\n");
                 cont++;
-                printf("Paso tipo variable FLOAT\n");
-              } 
+              }
             | STRING_T
               {
                 if(modificar_lista(&pl, STRING, cont)==FALLO)
                    printf("Error. No se pudo actualizar\n");
                    cont++;
-                printf("Paso tipo variable STRING\n");
+              }
+            | HEXADECIMAL_T
+              {
+                if(modificar_lista(&pl, HEXADECIMAL, cont)==FALLO)
+                   printf("Error. No se pudo actualizar\n");
+                   cont++;
+              }
+           | BINARIO_T
+              {
+                if(modificar_lista(&pl, BIN, cont)==FALLO)
+                   printf("Error. No se pudo actualizar\n");
+                   cont++;
               }
             ; 
-lista_tipo:  tipo_variable 
-              {
-                printf("Paso lista tipo tipo variable\n");
-              }
-            ;
-            | lista_tipo COMA tipo_variable
-              {
-                printf("Paso lista tipo lista tipo COMA tipo_variable\n");
-              }
-            ;
+lista_tipo:  tipo_variable;
+            | lista_tipo COMA tipo_variable;
 tipo_numerico: ENTERO | REAL | HEXA | BINARIO ;
 lista_numerica:  tipo_numerico | lista_numerica COMA tipo_numerico;
-declaracion: DIM_T CORCHETE_A lista_variable CORCHETE_C AS_T CORCHETE_A lista_tipo CORCHETE_C 
+declaracion: DIM_T OP_MENOR lista_variable OP_MAYOR AS_T OP_MENOR lista_tipo OP_MAYOR 
             {
-              printf("Paso declaracion\n");
+              printf("    Declaracion\n");
             }
             ;
-contar: CONTAR_T PARENTESIS_A expresion PUNTO_COMA CORCHETE_A lista_numerica CORCHETE_C PARENTESIS_C ;
+contar: CONTAR_T PARENTESIS_A expresion PUNTO_COMA CORCHETE_A lista_numerica CORCHETE_C PARENTESIS_C;
 
 %%
 

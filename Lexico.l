@@ -5,7 +5,7 @@
 #include <conio.h>
 #include <float.h>
 #include "y.tab.h"
-#define MAX_CADENA 50
+#define MAX_CADENA 32
 
 
 FILE  *yyin;
@@ -32,6 +32,8 @@ AND_T		"And"|"and"|"AND"
 OR_T		"Or"|"or"|"OR"
 NOT_T		"Not"|"not"|"NOT"
 CONTAR_T	"Contar"|"contar"|"CONTAR"
+HEXADECIMAL_T "Hexadecimal"|"hexadecimal"|"HEXADECIMAL"|"Hexa"|"hexa"|"HEXA"
+BINARIO_T "Binario"|"binario"|"BINARIO"
 
 DIGITO		[0-9]
 LETRA		[a-zA-Z]
@@ -68,11 +70,11 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 ")"				{ return PARENTESIS_C;}
 "{"         	{ return LLAVE_A;}
 "}"        		{ return LLAVE_C;}
-">"         	{ return OP_MAYOR;}  //GREATER_THAN
-"<"         	{ return OP_MENOR;}  //LESS_THAN
-">="        	{ return OP_MAYOR_IGUAL;} //GREATER_EQUAL_THAN
-"<="        	{ return OP_MENOR_IGUAL;} //LESS_EQUAL_THAN
-"=="       	 	{ return OP_IGUAL;}   //EQUAL
+">"         	{ return OP_MAYOR;}
+"<"         	{ return OP_MENOR;}
+">="        	{ return OP_MAYOR_IGUAL;}
+"<="        	{ return OP_MENOR_IGUAL;}
+"=="       	 	{ return OP_IGUAL;}
 "<>"        	{ return OP_DISTINTO;}
 
 {WHILE_T}       {return WHILE_T;}
@@ -84,11 +86,13 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 {INTEGER_T}     {return INTEGER_T;}
 {STRING_T}      {return STRING_T;}
 {FLOAT_T}       {return FLOAT_T;}
+{HEXADECIMAL_T} {return HEXADECIMAL_T;}
+{BINARIO_T}     {return BINARIO_T;}
 {ELSE_T}        {return ELSE_T;}
-{CONTAR_T}      { return CONTAR_T;}
-{OR_T}          { return OR_T;}
-{AND_T}         { return AND_T;}
-{NOT_T}         { return NOT_T;}
+{CONTAR_T}      {return CONTAR_T;}
+{OR_T}          {return OR_T;}
+{AND_T}         {return AND_T;}
+{NOT_T}         {return NOT_T;}
 
 
 {ID}			{ printf("ID: %s\n", yytext);
@@ -118,7 +122,7 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
                         yylval.str_val = strdup(yytext);
                       printf("CADENA: %s\n", yytext);return CADENA;
                                  } 
-                   /* show_error("ERROR LEXICO. CADENA MAYOR a 32 caracteres\n");*/
+                   show_error("ERROR LEXICO. CADENA MAYOR a 30 CARACTERES\n");
                 }
 {BINARIO}		{ printf("BINARIO: %s\n", yytext);
               yylval.str_val = strdup(yytext);

@@ -1,1 +1,14 @@
 NOMBRE|TIPODATO|VALOR|LONGITUD
+_contador|Int|-|-
+_promedio|Float|-|-
+_actual|Float|-|-
+_suma|Float|-|-
+_0|-|0|-
+_2.5000|-|2.5000|-
+_0xA2B0|-|0xA2B0|-
+_92|-|92|-
+_1|-|1|-
+_0.3420|-|0.3420|-
+_0b10|-|0b10|-
+_0|-|0|-
+_0b111010|-|0b111010|-

@@ -14,10 +14,10 @@
 #define TABLA_SIMBOLOS "ts.txt"
 
 typedef struct s_nodo{
-	char* nombre;
-	char* valor;
-	char* tipo;
-	char* longitud;
+	char nombre[32];
+	char valor [30];
+	char tipo [9];
+	char longitud [2];
 	struct s_nodo* siguiente;
 
 }t_nodo;
@@ -62,27 +62,15 @@ int insertar_entero(int cte, t_lista* lista_simbolos){
 
 	itoa(cte, nombre, 10);
 
-	nuevo->valor = (char*) malloc(sizeof(char) * 21);
-	if(!(nuevo->valor)){
-		printf("Error, no hay memoria\n.");
-		return FALLO;
-	}
-
 	strcpy(nuevo->valor, nombre);
-	nuevo->tipo = NULL;
-
-	nuevo->nombre = (char*) malloc(sizeof(char) * 21 );
-	if(nuevo->nombre == NULL){
-			printf("Error, no hay memoria\n.");
-			return FALLO;
-	}
+	strcpy(nuevo->tipo, "-");
+	strcpy(nuevo->longitud,"-");
 	strcpy(nuevo->nombre,"_");
 	strcat(nuevo->nombre, nombre);
 	
 	if(!*lista_simbolos){
 		nuevo->siguiente = NULL;
 		*lista_simbolos = nuevo;
-		printf("%d\n", *lista_simbolos);
 	}
 	while((*laux)->siguiente){
 		laux = &(*laux)->siguiente;
@@ -105,22 +93,11 @@ int insertar_real(float cte, t_lista* lista_simbolos){
 
 	sprintf(nombre, "%.4f", cte);
 
-	nuevo->valor = (char*) malloc(sizeof(char) * 21);
-	if(!(nuevo->valor)){
-		printf("Error, no hay memoria\n.");
-		return FALLO;
-	}
-
 	strcpy(nuevo->valor, nombre);
-	nuevo->tipo = NULL;
-	nuevo->nombre = (char*) malloc(sizeof(char) * 21 );
-	if(nuevo->nombre == NULL){
-			printf("Error, no hay memoria\n.");
-			return FALLO;
-	}
+	strcpy(nuevo->tipo,"-");
+	strcpy(nuevo->longitud,"-");
 	strcpy(nuevo->nombre,"_");
 	strcat(nuevo->nombre, nombre);
-	
 	
 	if(!*lista_simbolos){
 		nuevo->siguiente = NULL;
@@ -132,7 +109,6 @@ int insertar_real(float cte, t_lista* lista_simbolos){
 	(*laux)->siguiente = nuevo;
 	nuevo->siguiente = NULL;
 	free(laux);
-	printf("deberia insertar: %s\n", nombre);
 	return TODO_OK;
 }
 
@@ -145,15 +121,7 @@ int insertar_en_lista(char* nombre_var , int valor , t_lista* lista_simbolos){
 		printf("Error, no hay memoria\n.");
 		return FALLO;
 	}
-	nuevo->nombre = (char*) malloc(sizeof(char) * strlen(nombre_var) + 1);
-	nuevo->valor = (char*) malloc(sizeof(char) * strlen(nombre_var) + 1);
-	nuevo->longitud = (char*) malloc(sizeof(char) * strlen(nombre_var) + 1);
-	nuevo->tipo = (char*) malloc(sizeof(char) * 10);
 
-	if(nuevo->nombre == NULL || nuevo->valor == NULL ||nuevo->longitud == NULL || nuevo->tipo == NULL ){
-			printf("Error, no hay memoria\n.");
-			return FALLO;
-	}
 
 	if(valor == ES_STRING){
 		eliminar_comilla(nombre_var);
@@ -180,7 +148,6 @@ int insertar_en_lista(char* nombre_var , int valor , t_lista* lista_simbolos){
 	if(!*lista_simbolos){
 		nuevo->siguiente = NULL;
 		*lista_simbolos = nuevo;
-		printf("%d\n", *lista_simbolos);
 	}
 	while((*laux)->siguiente){
 		laux = &(*laux)->siguiente;
@@ -203,8 +170,7 @@ int vaciar_lista(t_lista* lista){
  	fprintf(file,"%s\n","NOMBRE|TIPODATO|VALOR|LONGITUD");
  	while(*lista){
  		anterior = *lista;
- 		*lista = anterior->siguiente;
- 		printf("%s|%s|%s|%s\n", anterior->nombre,anterior->tipo, anterior->valor, anterior->longitud );
+ 		*lista = anterior->siguiente; 	
  		fprintf(file, "%s|%s|%s|%s\n", anterior->nombre,anterior->tipo, anterior->valor, anterior->longitud );
  		free(anterior);
  	}
@@ -227,7 +193,8 @@ void eliminar_comilla (char* cadena){
 
 int modificar_lista(t_lista* lista, int tipo, int cont){
 	t_lista* aux = lista;
-	for(int i = 0; i < cont; i++){
+	int i;
+	for(i = 0; i < cont; i++){
 		aux = &(*aux)->siguiente;
 	}
 	if(tipo == INTEGER){
@@ -237,6 +204,12 @@ int modificar_lista(t_lista* lista, int tipo, int cont){
 	}
 	else if(tipo == STRING ){
 		strcpy((*aux)->tipo,"String");
+	}
+	else if(tipo == HEXADECIMAL ){
+		strcpy((*aux)->tipo,"Hexa");
+	}
+	else if(tipo == BIN ){
+		strcpy((*aux)->tipo,"Binario");
 	}
 	else
 	{
@@ -248,7 +221,7 @@ int modificar_lista(t_lista* lista, int tipo, int cont){
 }
 int existe_simbolo(char* simbolo, t_lista* lista){
 	t_lista* laux = lista;
-	char aux[34] = "_";
+	char aux[32] = "_";
 	strcat(aux,simbolo);
 	while((*laux)->siguiente){
 		if(strcmp(aux,(*laux)->nombre)==0)
