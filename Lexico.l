@@ -105,7 +105,7 @@ ID			{LETRA}({LETRA}|{DIGITO}|_)*
 
           }
 {ENTERO}	{ 
-            if(atoi( yytext ) <= 32767 /*&& atoi( yytext ) >= -32768*/){
+            if(atoi( yytext ) <= 32767 && atoi( yytext ) >= 0){
                 yylval.int_val = atoi(yytext);
                 printf("ENTERO: %s\n", yytext);return ENTERO;}
               show_error("ERROR LEXICO. ENTERO FUERA DE RANGO\n");
